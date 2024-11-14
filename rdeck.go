@@ -5,33 +5,46 @@ import (
 	"log"
 
 	"github.com/FlowingSPDG/rdeck/connector"
+	"golang.org/x/xerrors"
 )
 
 // RDeck is a vMix control panel made by Raspberry Pi 4 Model B and Go, gobot.
 type RDeck interface {
+	Add(ctx context.Context, connector connector.VMixTallyConnector) error
 	Start(ctx context.Context) error
-	// TODO:
-	// AddConnector(in input.Input, out output.Output) error // Adds connector with pre-configured input/output.
 }
 
 type rdeck struct {
-	// input/output pool
-	// TODO: I/O の接続をプールするフィールドの作成
-	// 途中追加も可能にしたい
+	started bool
 
 	// connectors
-	// TODO: define with slice
-	// スライスとして定義して、途中で追加したり停止・再起動を出来る様にしたい
-	vmixTallyConnector connector.VMixTallyConnector
+	vmixTallyConnectors []connector.VMixTallyConnector
 }
 
-func NewRDeck(vmixTallyConnector connector.VMixTallyConnector) RDeck {
+func NewRDeck() RDeck {
 	return &rdeck{
-		vmixTallyConnector: vmixTallyConnector,
+		vmixTallyConnectors: []connector.VMixTallyConnector{},
 	}
+}
+
+func (r *rdeck) Add(ctx context.Context, connector connector.VMixTallyConnector) error {
+	r.vmixTallyConnectors = append(r.vmixTallyConnectors, connector)
+	if r.started {
+		if err := connector.Start(ctx); err != nil {
+			return xerrors.Errorf("failed to start connector: %w", err)
+		}
+	}
+	return nil
 }
 
 func (r *rdeck) Start(ctx context.Context) error {
 	log.Println("STARTING RDECK.")
-	return r.vmixTallyConnector.Start(ctx)
+	r.started = true
+	for _, connector := range r.vmixTallyConnectors {
+		if err := connector.Start(ctx); err != nil {
+			return xerrors.Errorf("failed to start connector: %w", err)
+		}
+	}
+	<-ctx.Done()
+	return ctx.Err()
 }

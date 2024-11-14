@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"os/signal"
 	"time"
@@ -22,7 +21,10 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
-	vMixConnection := connection.NewVMixConnection("192.168.1.10")
+	rd := rdeck.NewRDeck()
+
+	vMixConnectionPool := connection.NewvMixConnectionPool()
+	vMixConnection := vMixConnectionPool.AddNew("192.168.1.10")
 	vmixTallyInput := vMixConnection.ToTallyInput()
 
 	raspiAdapter := raspi.NewAdaptor()
@@ -31,7 +33,8 @@ func main() {
 
 	dt := determiner.NewvMixTallyDeterminer(1)
 	vMixTallyConnector := connector.NewVMixTallyConnector(vmixTallyInput, ledTallyOutput, dt)
-	rd := rdeck.NewRDeck(vMixTallyConnector)
+
+	rd.Add(ctx, vMixTallyConnector)
 
 	go func() {
 		if err := vMixConnection.Start(ctx); err != nil {
@@ -41,15 +44,11 @@ func main() {
 
 	work := func() {
 		gobot.After(500*time.Millisecond, func() {
-			log.Println("STARTING!!")
-			if err := rd.Start(ctx); err != nil {
-				panic(err)
-			}
-			log.Println("END!!")
+			rd.Start(ctx)
 		})
 	}
 
-	robot := gobot.NewRobot("blinkBot",
+	robot := gobot.NewRobot("rdeck",
 		[]gobot.Connection{raspiAdapter},
 		[]gobot.Device{ledDriver},
 		work,

@@ -14,6 +14,7 @@ import (
 )
 
 // TODO: 実際の接続とリトライ処理
+// TODO: 複数のOutputの保持
 type VMixTallyConnector interface {
 	Start(ctx context.Context) error
 }
