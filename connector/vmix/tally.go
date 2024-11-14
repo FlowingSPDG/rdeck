@@ -1,9 +1,10 @@
-package connector
+package vmix
 
 import (
 	"context"
 	"log"
 
+	"github.com/FlowingSPDG/rdeck/connector"
 	"github.com/FlowingSPDG/rdeck/determiner"
 	"github.com/FlowingSPDG/rdeck/input"
 	"github.com/FlowingSPDG/rdeck/output"
@@ -15,15 +16,11 @@ import (
 
 // TODO: 実際の接続とリトライ処理
 // TODO: 複数のOutputの保持
-type VMixTallyConnector interface {
-	Start(ctx context.Context) error
-}
-
 func NewVMixTallyConnector(
 	in input.Input[*vmixtcp.TallyResponse],
 	out output.Analog,
 	determiner determiner.VMixTallyDeterminer,
-) VMixTallyConnector {
+) connector.Connector {
 	return &vMixTallyConnector{
 		in:         in,
 		out:        out,

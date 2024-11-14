@@ -1,6 +1,8 @@
 package vmix
 
 import (
+	"log"
+
 	"github.com/FlowingSPDG/rdeck/output"
 	vmixtcp "github.com/FlowingSPDG/vmix-go/tcp"
 	"golang.org/x/xerrors"
@@ -12,6 +14,7 @@ type vMixOutput struct {
 }
 
 func (v *vMixOutput) SendFunction(name, query string) error {
+	log.Println("Sending function:", name, query)
 	if err := v.v.Function(name, query); err != nil {
 		return xerrors.Errorf("failed to send function: %w", err)
 	}

@@ -11,28 +11,22 @@ type ShouldTally struct {
 
 type VMixTallyDeterminer interface {
 	DetermineByTally(*vmixtcp.TallyResponse) ShouldTally
-	DetermineByActs(*vmixtcp.ActsResponse) ShouldTally
 }
 
-type settings struct {
+type vmixTallyDeterminerSettings struct {
 	target int
 }
 
 type vmixTallyDeterminer struct {
-	s settings
+	s vmixTallyDeterminerSettings
 }
 
 func NewvMixTallyDeterminer(target int) VMixTallyDeterminer {
 	return &vmixTallyDeterminer{
-		s: settings{
+		s: vmixTallyDeterminerSettings{
 			target: target,
 		},
 	}
-}
-
-func (v *vmixTallyDeterminer) DetermineByActs(resp *vmixtcp.ActsResponse) ShouldTally {
-	// TODO.
-	return ShouldTally{}
 }
 
 func (v *vmixTallyDeterminer) DetermineByTally(resp *vmixtcp.TallyResponse) ShouldTally {
@@ -54,5 +48,36 @@ func (v *vmixTallyDeterminer) DetermineByTally(resp *vmixtcp.TallyResponse) Shou
 		}
 	default:
 		return ShouldTally{}
+	}
+}
+
+type vMixActivatorDeterminer struct {
+	s vMixActivatorDeterminerSettings
+}
+
+type vMixActivatorDeterminerSettings struct {
+	// TODO...
+	rawText string
+}
+
+type VMixActivatorDeterminer interface {
+	DetermineByActs(*vmixtcp.ActsResponse) ShouldTally
+}
+
+// DetermineByActs implements VMixActivatorDeterminer.
+func (v *vMixActivatorDeterminer) DetermineByActs(resp *vmixtcp.ActsResponse) ShouldTally {
+	if v.s.rawText == resp.Response {
+		return ShouldTally{
+			Program: true,
+		}
+	}
+	return ShouldTally{
+		Program: false,
+	}
+}
+
+func NewVMixActivatorDeterminer(target int) VMixActivatorDeterminer {
+	return &vMixActivatorDeterminer{
+		s: vMixActivatorDeterminerSettings{},
 	}
 }
