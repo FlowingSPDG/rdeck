@@ -1,8 +1,7 @@
 package output
 
-type Tally interface {
-	Active() error
-	Preview() error
-	Inactive() error
+type Analog interface {
+	On() error
+	Off() error
 	// TODO: 初期化/終了処理...?
 }

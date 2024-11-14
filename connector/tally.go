@@ -21,7 +21,7 @@ type VMixTallyConnector interface {
 
 func NewVMixTallyConnector(
 	in input.Input[*vmixtcp.TallyResponse],
-	out output.Tally,
+	out output.Analog,
 	determiner determiner.VMixTallyDeterminer,
 ) VMixTallyConnector {
 	return &vMixTallyConnector{
@@ -34,7 +34,7 @@ func NewVMixTallyConnector(
 type vMixTallyConnector struct {
 	// in and out
 	in  input.Input[*vmixtcp.TallyResponse]
-	out output.Tally
+	out output.Analog
 
 	// determiner
 	determiner determiner.VMixTallyDeterminer
@@ -56,18 +56,12 @@ func (t *vMixTallyConnector) Start(ctx context.Context) error {
 			log.Println("Determined tally for:", sd)
 
 			if sd.Program {
-				if err := t.out.Active(); err != nil {
+				if err := t.out.On(); err != nil {
 					return xerrors.Errorf("failed to turn on tally light: %w", err)
 				}
 				continue
 			}
-			if sd.Preview {
-				if err := t.out.Preview(); err != nil {
-					return xerrors.Errorf("failed to turn on tally light: %w", err)
-				}
-				continue
-			}
-			if err := t.out.Inactive(); err != nil {
+			if err := t.out.Off(); err != nil {
 				return xerrors.Errorf("failed to turn on tally light: %w", err)
 			}
 			continue

@@ -8,7 +8,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-var _ output.Tally = (*ledOutput)(nil)
+var _ output.Analog = (*ledOutput)(nil)
 
 type TallyData struct{}
 
@@ -16,14 +16,13 @@ type ledOutput struct {
 	driver *gpio.LedDriver
 }
 
-func NewLEDOutput(driver *gpio.LedDriver) output.Tally {
+func NewLEDOutput(driver *gpio.LedDriver) output.Analog {
 	return &ledOutput{
 		driver: driver,
 	}
 }
 
-// Active implements tally.TallyLight.
-func (l *ledOutput) Active() error {
+func (l *ledOutput) On() error {
 	log.Println("ACTIVATING LED...")
 	if err := l.driver.On(); err != nil {
 		return xerrors.Errorf("failed to turn on LED interface: %w", err)
@@ -32,18 +31,8 @@ func (l *ledOutput) Active() error {
 }
 
 // Inactive implements tally.TallyLight.
-func (l *ledOutput) Inactive() error {
+func (l *ledOutput) Off() error {
 	log.Println("DEACTIVATING LED...")
-	if err := l.driver.Off(); err != nil {
-		return xerrors.Errorf("failed to turn on LED interface: %w", err)
-	}
-	return nil
-}
-
-// Preview implements tally.TallyLight.
-func (l *ledOutput) Preview() error {
-	log.Println("DEACTIVATING LED...")
-	// Since LED only supports On/Off, lets leave preview tally.
 	if err := l.driver.Off(); err != nil {
 		return xerrors.Errorf("failed to turn on LED interface: %w", err)
 	}
