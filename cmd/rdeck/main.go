@@ -58,12 +58,12 @@ func main() {
 	previewTallyActivatorConnector := vmix.NewVMixActivatorConnector(vMixConnection, ledOutput2, previewTallyActivatorDeterminer)
 	rd.Add(ctx, previewTallyActivatorConnector)
 
-	// 2: vMix Activator[InputPlaying 1 1] -> Pin 15 LED
+	// 3: vMix Activator[InputPlaying 1 1] -> Pin 15 LED
 	inputPlayingActivatorDeterminer := determiner.NewVMixActivatorDeterminer("InputPlaying", 1, 1)
 	inputPlayingActivatorConnector := vmix.NewVMixActivatorConnector(vMixConnection, ledOutput3, inputPlayingActivatorDeterminer)
 	rd.Add(ctx, inputPlayingActivatorConnector)
 
-	// 3: Button -> vMix Function
+	// 4: Button -> vMix Function
 	vMixSendFunctionConnector := vmix.NewSendFunction(buttonInput, vMixOutput, "Cut", "Input=1")
 	rd.Add(ctx, vMixSendFunctionConnector)
 

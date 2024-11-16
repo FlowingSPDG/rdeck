@@ -45,7 +45,7 @@ func (v *vmixActivatorConnector) Start(ctx context.Context) error {
 		case e := <-err:
 			return xerrors.Errorf("Unknown error for e: %w", e)
 		case d := <-data:
-			log.Println("RECEIVED DATA on vmixActivatorConnector.Start(). data:", d)
+			log.Printf("RECEIVED DATA on vmixActivatorConnector.Start(). in:%s out:%s data:%v\n", v.in.Name(), v.out.Name(), d)
 			sd := v.determiner.DetermineByActs(d)
 			if sd == nil {
 				continue

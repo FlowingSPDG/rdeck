@@ -22,6 +22,10 @@ func NewLEDOutput(driver *gpio.LedDriver) output.Analog {
 	}
 }
 
+func (l *ledOutput) Name() string {
+	return l.driver.Name()
+}
+
 func (l *ledOutput) On() error {
 	log.Println("ACTIVATING LED...")
 	if err := l.driver.On(); err != nil {

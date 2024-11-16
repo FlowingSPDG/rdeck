@@ -47,6 +47,10 @@ func (v *vMixTallyInput) Listen(ctx context.Context) (<-chan *vmixtcp.TallyRespo
 	return d, e
 }
 
+func (v *vMixTallyInput) Name() string {
+	return "vMixTallyInput"
+}
+
 func NewvMixActivatorInput(ar <-chan *vmixtcp.ActsResponse, err <-chan error) input.Input[*vmixtcp.ActsResponse] {
 	return &vMixActivatorInput{
 		ar:  ar,
@@ -84,4 +88,8 @@ func (v *vMixActivatorInput) Listen(ctx context.Context) (data <-chan *vmixtcp.A
 	}()
 
 	return d, e
+}
+
+func (v *vMixActivatorInput) Name() string {
+	return "vMixActivatorInput"
 }

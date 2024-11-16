@@ -40,3 +40,7 @@ func (b *buttonInput) Listen(ctx context.Context) (data <-chan bool, err <-chan 
 
 	return d, e
 }
+
+func (b *buttonInput) Name() string {
+	return b.driver.Name()
+}
