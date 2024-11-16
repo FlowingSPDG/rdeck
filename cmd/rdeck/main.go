@@ -30,7 +30,6 @@ func main() {
 	// vMix related
 	vMixConnectionPool := connection.NewvMixConnectionPool()
 	vMixConnection := vMixConnectionPool.AddNew("192.168.1.10")
-	vMixOutput := vMixConnection.ToOutput()
 
 	// raspi related
 	raspiAdapter := raspi.NewAdaptor()
@@ -69,11 +68,11 @@ func main() {
 	rd.Add(ctx, inputPlayingActivatorConnector)
 
 	// 4: Button -> vMix Function(PreviewInput Input=1)
-	vMixSendFunctionPreviewConnector := vmix.NewSendFunction(buttonInput1, vMixOutput, "PreviewInput", "Input=1")
+	vMixSendFunctionPreviewConnector := vmix.NewSendFunction(buttonInput1, vMixConnection, "PreviewInput", "Input=1")
 	rd.Add(ctx, vMixSendFunctionPreviewConnector)
 
 	// 5: Button -> vMix Function(Cut Input=1)
-	vMixSendFunctionCutConnector := vmix.NewSendFunction(buttonInput2, vMixOutput, "Cut", "Input=1")
+	vMixSendFunctionCutConnector := vmix.NewSendFunction(buttonInput2, vMixConnection, "Cut", "Input=1")
 	rd.Add(ctx, vMixSendFunctionCutConnector)
 
 	go func() {

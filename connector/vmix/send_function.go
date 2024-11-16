@@ -3,9 +3,11 @@ package vmix
 import (
 	"context"
 
+	"github.com/FlowingSPDG/rdeck/connection"
 	"github.com/FlowingSPDG/rdeck/connector"
 	"github.com/FlowingSPDG/rdeck/input"
 	"github.com/FlowingSPDG/rdeck/output"
+
 	"golang.org/x/xerrors"
 )
 
@@ -22,12 +24,12 @@ type sendFunctionSettings struct {
 
 func NewSendFunction(
 	in input.Input[bool],
-	out output.VMixOutput,
+	v connection.VMixConnection,
 	funcName, query string,
 ) connector.Connector {
 	return &sendFunction{
 		in:  in,
-		out: out,
+		out: v.ToOutput(),
 		settings: sendFunctionSettings{
 			name:  funcName,
 			query: query,
