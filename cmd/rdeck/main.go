@@ -34,6 +34,8 @@ func main() {
 
 	// raspi related
 	raspiAdapter := raspi.NewAdaptor()
+
+	// leds
 	ledDriver1 := gpio.NewLedDriver(raspiAdapter, "11") // GPIO:17
 	ledOutput1 := led.NewLEDOutput(ledDriver1)
 	ledDriver2 := gpio.NewLedDriver(raspiAdapter, "13") // GPIO:27
@@ -41,8 +43,11 @@ func main() {
 	ledDriver3 := gpio.NewLedDriver(raspiAdapter, "15") // GPIO:22
 	ledOutput3 := led.NewLEDOutput(ledDriver3)
 
-	buttonDriver := gpio.NewButtonDriver(raspiAdapter, "37")
-	buttonInput := button.NewButtonInput(buttonDriver)
+	// buttons
+	buttonDriver1 := gpio.NewButtonDriver(raspiAdapter, "37")
+	buttonInput1 := button.NewButtonInput(buttonDriver1)
+	buttonDriver2 := gpio.NewButtonDriver(raspiAdapter, "8")
+	buttonInput2 := button.NewButtonInput(buttonDriver2)
 
 	// determiner/logic
 
@@ -63,9 +68,13 @@ func main() {
 	inputPlayingActivatorConnector := vmix.NewVMixActivatorConnector(vMixConnection, ledOutput3, inputPlayingActivatorDeterminer)
 	rd.Add(ctx, inputPlayingActivatorConnector)
 
-	// 4: Button -> vMix Function
-	vMixSendFunctionConnector := vmix.NewSendFunction(buttonInput, vMixOutput, "Cut", "Input=1")
-	rd.Add(ctx, vMixSendFunctionConnector)
+	// 4: Button -> vMix Function(PreviewInput Input=1)
+	vMixSendFunctionPreviewConnector := vmix.NewSendFunction(buttonInput1, vMixOutput, "PreviewInput", "Input=1")
+	rd.Add(ctx, vMixSendFunctionPreviewConnector)
+
+	// 5: Button -> vMix Function(Cut Input=1)
+	vMixSendFunctionCutConnector := vmix.NewSendFunction(buttonInput2, vMixOutput, "Cut", "Input=1")
+	rd.Add(ctx, vMixSendFunctionCutConnector)
 
 	go func() {
 		if err := vMixConnection.Start(ctx); err != nil {
@@ -83,7 +92,7 @@ func main() {
 
 	robot := gobot.NewRobot("RDeck",
 		[]gobot.Connection{raspiAdapter},
-		[]gobot.Device{ledDriver1, ledDriver2, ledDriver3, buttonDriver},
+		[]gobot.Device{ledDriver1, ledDriver2, ledDriver3, buttonDriver1, buttonDriver2},
 		work,
 	)
 
