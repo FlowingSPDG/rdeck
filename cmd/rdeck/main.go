@@ -30,31 +30,38 @@ func main() {
 	// vMix related
 	vMixConnectionPool := connection.NewvMixConnectionPool()
 	vMixConnection := vMixConnectionPool.AddNew("192.168.1.10")
-	vMixTallyInput := vMixConnection.ToTallyInput()
-	vMixActivatorInput := vMixConnection.ToActivatorInput()
 	vMixOutput := vMixConnection.ToOutput()
 
 	// raspi related
 	raspiAdapter := raspi.NewAdaptor()
-	ledDriver1 := gpio.NewLedDriver(raspiAdapter, "7")
+	ledDriver1 := gpio.NewLedDriver(raspiAdapter, "11") // GPIO:17
 	ledOutput1 := led.NewLEDOutput(ledDriver1)
-	ledDriver2 := gpio.NewLedDriver(raspiAdapter, "8")
+	ledDriver2 := gpio.NewLedDriver(raspiAdapter, "13") // GPIO:27
 	ledOutput2 := led.NewLEDOutput(ledDriver2)
+	ledDriver3 := gpio.NewLedDriver(raspiAdapter, "15") // GPIO:22
+	ledOutput3 := led.NewLEDOutput(ledDriver3)
 
-	buttonDriver := gpio.NewButtonDriver(raspiAdapter, "40")
+	buttonDriver := gpio.NewButtonDriver(raspiAdapter, "37")
 	buttonInput := button.NewButtonInput(buttonDriver)
 
 	// determiner/logic
 
-	// 1: vMix Tally -> LED
+	// 1: vMix Tally[PGM] -> Pin 11 LED
 	tallyDeterminer := determiner.NewvMixTallyDeterminer(1)
-	vMixTallyConnector := vmix.NewVMixTallyConnector(vMixTallyInput, ledOutput1, tallyDeterminer)
-	rd.Add(ctx, vMixTallyConnector)
+	vMixPGMTallyConnector := vmix.NewVMixTallyConnector(vMixConnection, ledOutput1, tallyDeterminer, vmix.VMixTallyConnectorSettings{
+		Target: vmix.Program,
+	})
+	rd.Add(ctx, vMixPGMTallyConnector)
 
-	// 2: vMix Activator -> LED
-	activatorDeterminer := determiner.NewVMixActivatorDeterminer("InputPlaying", 1, 1)
-	vMixActivatorConnector := vmix.NewVMixActivatorConnector(vMixActivatorInput, ledOutput2, activatorDeterminer)
-	rd.Add(ctx, vMixActivatorConnector)
+	// 2: vMix Activator[InputPreview 1 1] -> Pin 13 LED
+	previewTallyActivatorDeterminer := determiner.NewVMixActivatorDeterminer("InputPreview", 1, 1)
+	previewTallyActivatorConnector := vmix.NewVMixActivatorConnector(vMixConnection, ledOutput2, previewTallyActivatorDeterminer)
+	rd.Add(ctx, previewTallyActivatorConnector)
+
+	// 2: vMix Activator[InputPlaying 1 1] -> Pin 15 LED
+	inputPlayingActivatorDeterminer := determiner.NewVMixActivatorDeterminer("InputPlaying", 1, 1)
+	inputPlayingActivatorConnector := vmix.NewVMixActivatorConnector(vMixConnection, ledOutput3, inputPlayingActivatorDeterminer)
+	rd.Add(ctx, inputPlayingActivatorConnector)
 
 	// 3: Button -> vMix Function
 	vMixSendFunctionConnector := vmix.NewSendFunction(buttonInput, vMixOutput, "Cut", "Input=1")
@@ -69,14 +76,14 @@ func main() {
 	work := func() {
 		gobot.After(500*time.Millisecond, func() {
 			if err := rd.Start(ctx); err != nil {
-				log.Println("Failed to start rdeck.] ", err)
+				log.Println("Failed to start RDeck. ", err)
 			}
 		})
 	}
 
-	robot := gobot.NewRobot("rdeck",
+	robot := gobot.NewRobot("RDeck",
 		[]gobot.Connection{raspiAdapter},
-		[]gobot.Device{ledDriver1, ledDriver2, buttonDriver},
+		[]gobot.Device{ledDriver1, ledDriver2, ledDriver3, buttonDriver},
 		work,
 	)
 

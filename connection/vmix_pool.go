@@ -3,6 +3,8 @@ package connection
 import "github.com/puzpuzpuz/xsync/v3"
 
 type VMixConnectionPool interface {
+	//TODO: Start()?
+
 	Add(addr string, vc VMixConnection)
 	Remove(vc VMixConnection)
 	// RemoveByAddr?

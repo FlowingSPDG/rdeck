@@ -8,65 +8,79 @@ import (
 	vmixtcp "github.com/FlowingSPDG/vmix-go/tcp"
 )
 
-func NewvMixTallyInput(v vmixtcp.Vmix) input.Input[*vmixtcp.TallyResponse] {
+func NewvMixTallyInput(tr <-chan *vmixtcp.TallyResponse, err <-chan error) input.Input[*vmixtcp.TallyResponse] {
 	return &vMixTallyInput{
-		v: v,
+		tr:  tr,
+		err: err,
 	}
 }
 
 type vMixTallyInput struct {
-	v vmixtcp.Vmix
+	tr  <-chan *vmixtcp.TallyResponse
+	err <-chan error
 }
 
 func (v *vMixTallyInput) Listen(ctx context.Context) (<-chan *vmixtcp.TallyResponse, <-chan error) {
 	d := make(chan *vmixtcp.TallyResponse)
 	e := make(chan error)
-	if err := v.v.Subscribe(vmixtcp.EventTally, ""); err != nil {
-		log.Println("failed to subscribe... ", err)
-	}
-	v.v.OnTally(func(tr *vmixtcp.TallyResponse, err error) {
-		log.Println("received tally:", tr)
-		d <- tr
-		if err != nil {
-			e <- err
-		}
-	})
+
 	go func() {
-		<-ctx.Done()
-		close(d)
-		close(e)
+		for {
+			select {
+
+			case tr := <-v.tr:
+				log.Println("received tally:", tr)
+				d <- tr
+
+			case err := <-v.err:
+				if err != nil {
+					e <- err
+				}
+
+			case <-ctx.Done():
+				close(d)
+				close(e)
+			}
+		}
 	}()
 
 	return d, e
 }
 
-func NewvMixActivatorInput(v vmixtcp.Vmix) input.Input[*vmixtcp.ActsResponse] {
+func NewvMixActivatorInput(ar <-chan *vmixtcp.ActsResponse, err <-chan error) input.Input[*vmixtcp.ActsResponse] {
 	return &vMixActivatorInput{
-		v: v,
+		ar:  ar,
+		err: err,
 	}
 }
 
 type vMixActivatorInput struct {
-	v vmixtcp.Vmix
+	ar  <-chan *vmixtcp.ActsResponse
+	err <-chan error
 }
 
 func (v *vMixActivatorInput) Listen(ctx context.Context) (data <-chan *vmixtcp.ActsResponse, err <-chan error) {
 	d := make(chan *vmixtcp.ActsResponse)
 	e := make(chan error)
-	if err := v.v.Subscribe(vmixtcp.EventActs, ""); err != nil {
-		log.Println("failed to subscribe... ", err)
-	}
-	v.v.OnActs(func(acts *vmixtcp.ActsResponse, err error) {
-		log.Println("received activator:", acts)
-		d <- acts
-		if err != nil {
-			e <- err
-		}
-	})
+
 	go func() {
-		<-ctx.Done()
-		close(d)
-		close(e)
+		for {
+			select {
+
+			case ar := <-v.ar:
+				log.Println("received acts:", ar)
+				d <- ar
+
+			case err := <-v.err:
+				if err != nil {
+					e <- err
+				}
+
+			case <-ctx.Done():
+				close(d)
+				close(e)
+			}
+		}
 	}()
 
 	return d, e

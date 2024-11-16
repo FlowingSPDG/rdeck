@@ -40,7 +40,7 @@ func main() {
 	work := func() {
 		gobot.After(500*time.Millisecond, func() {
 			if err := rd.Start(ctx); err != nil {
-				log.Println("Failed to start rdeck.] ", err)
+				log.Println("Failed to start rdeck. ", err)
 			}
 		})
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/FlowingSPDG/rdeck/connection"
 	"github.com/FlowingSPDG/rdeck/connector"
 	"github.com/FlowingSPDG/rdeck/determiner"
 	"github.com/FlowingSPDG/rdeck/input"
@@ -22,12 +23,12 @@ type vmixActivatorConnector struct {
 }
 
 func NewVMixActivatorConnector(
-	in input.Input[*vmixtcp.ActsResponse],
+	v connection.VMixConnection,
 	out output.Analog,
 	determiner determiner.VMixActivatorDeterminer,
 ) connector.Connector {
 	return &vmixActivatorConnector{
-		in:         in,
+		in:         v.ToActivatorInput(),
 		out:        out,
 		determiner: determiner,
 	}

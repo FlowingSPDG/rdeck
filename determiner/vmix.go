@@ -1,6 +1,7 @@
 package determiner
 
 import (
+	"log"
 	"strconv"
 	"strings"
 
@@ -72,6 +73,8 @@ type VMixActivatorDeterminer interface {
 
 // DetermineByActs implements VMixActivatorDeterminer.
 func (v *vMixActivatorInputDeterminer) DetermineByActs(resp *vmixtcp.ActsResponse) *ShouldTally {
+	log.Println("DetermineByActs:", resp)
+
 	strs := strings.Split(resp.Response, " ")
 	if len(strs) < 3 {
 		return nil
@@ -93,10 +96,12 @@ func (v *vMixActivatorInputDeterminer) DetermineByActs(resp *vmixtcp.ActsRespons
 		return nil
 	}
 
-	return &ShouldTally{
+	st := &ShouldTally{
 		Preview: false,
 		Program: state == v.s.state,
 	}
+	log.Println("DetermineByActs result:", st)
+	return st
 }
 
 func NewVMixActivatorDeterminer(target string, input, state int) VMixActivatorDeterminer {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 
+	"github.com/FlowingSPDG/rdeck/connection"
 	"github.com/FlowingSPDG/rdeck/connector"
 	"github.com/FlowingSPDG/rdeck/determiner"
 	"github.com/FlowingSPDG/rdeck/input"
@@ -14,17 +15,27 @@ import (
 	"golang.org/x/xerrors"
 )
 
+type Target int
+
+const (
+	_ Target = iota
+	Preview
+	Program
+)
+
 // TODO: 実際の接続とリトライ処理
 // TODO: 複数のOutputの保持
 func NewVMixTallyConnector(
-	in input.Input[*vmixtcp.TallyResponse],
+	v connection.VMixConnection,
 	out output.Analog,
 	determiner determiner.VMixTallyDeterminer,
+	settings VMixTallyConnectorSettings,
 ) connector.Connector {
 	return &vMixTallyConnector{
-		in:         in,
+		in:         v.ToTallyInput(),
 		out:        out,
 		determiner: determiner,
+		settings:   settings,
 	}
 }
 
@@ -35,6 +46,12 @@ type vMixTallyConnector struct {
 
 	// determiner
 	determiner determiner.VMixTallyDeterminer
+
+	settings VMixTallyConnectorSettings
+}
+
+type VMixTallyConnectorSettings struct {
+	Target Target
 }
 
 func (t *vMixTallyConnector) Start(ctx context.Context) error {
@@ -55,16 +72,30 @@ func (t *vMixTallyConnector) Start(ctx context.Context) error {
 			}
 			log.Println("Determined tally for:", sd)
 
-			if sd.Program {
-				if err := t.out.On(); err != nil {
-					return xerrors.Errorf("failed to turn on tally light: %w", err)
+			switch t.settings.Target {
+
+			case Preview:
+				if sd.Preview {
+					if err := t.out.On(); err != nil {
+						return xerrors.Errorf("failed to turn on Preview tally light: %w", err)
+					}
+				} else {
+					if err := t.out.Off(); err != nil {
+						return xerrors.Errorf("failed to turn off Preview tally light: %w", err)
+					}
 				}
-				continue
+
+			case Program:
+				if sd.Program {
+					if err := t.out.On(); err != nil {
+						return xerrors.Errorf("failed to turn on Program tally light: %w", err)
+					}
+				} else {
+					if err := t.out.Off(); err != nil {
+						return xerrors.Errorf("failed to turn off Program tally light: %w", err)
+					}
+				}
 			}
-			if err := t.out.Off(); err != nil {
-				return xerrors.Errorf("failed to turn on tally light: %w", err)
-			}
-			continue
 		}
 	}
 }
