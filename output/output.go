@@ -4,7 +4,7 @@ type Out interface {
 	Name() string
 }
 
-type Analog interface {
+type Digital interface {
 	Out
 
 	On() error

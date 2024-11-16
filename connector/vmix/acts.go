@@ -16,7 +16,7 @@ import (
 type vmixActivatorConnector struct {
 	// in and out
 	in  input.Input[*vmixtcp.ActsResponse]
-	out output.Analog
+	out output.Digital
 
 	// determiner
 	determiner determiner.VMixActivatorDeterminer
@@ -24,7 +24,7 @@ type vmixActivatorConnector struct {
 
 func NewVMixActivatorConnector(
 	v connection.VMixConnection,
-	out output.Analog,
+	out output.Digital,
 	determiner determiner.VMixActivatorDeterminer,
 ) connector.Connector {
 	return &vmixActivatorConnector{

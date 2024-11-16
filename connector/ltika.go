@@ -10,10 +10,10 @@ import (
 
 type ltika struct {
 	in  input.Input[bool]
-	out output.Analog
+	out output.Digital
 }
 
-func NewLTikaConnector(in input.Input[bool], out output.Analog) Connector {
+func NewLTikaConnector(in input.Input[bool], out output.Digital) Connector {
 	return &ltika{
 		in:  in,
 		out: out,

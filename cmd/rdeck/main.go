@@ -72,7 +72,7 @@ func main() {
 	rd.Add(ctx, vMixSendFunctionPreviewConnector)
 
 	// 5: Button -> vMix Function(Cut Input=1)
-	vMixSendFunctionCutConnector := vmix.NewSendFunction(buttonInput2, vMixConnection, "Cut", "Input=1")
+	vMixSendFunctionCutConnector := vmix.NewSendFunction(buttonInput2, vMixConnection, "OverlayInput1", "Input=12")
 	rd.Add(ctx, vMixSendFunctionCutConnector)
 
 	go func() {

@@ -27,7 +27,7 @@ const (
 // TODO: 複数のOutputの保持
 func NewVMixTallyConnector(
 	v connection.VMixConnection,
-	out output.Analog,
+	out output.Digital,
 	determiner determiner.VMixTallyDeterminer,
 	settings VMixTallyConnectorSettings,
 ) connector.Connector {
@@ -42,7 +42,7 @@ func NewVMixTallyConnector(
 type vMixTallyConnector struct {
 	// in and out
 	in  input.Input[*vmixtcp.TallyResponse]
-	out output.Analog
+	out output.Digital
 
 	// determiner
 	determiner determiner.VMixTallyDeterminer

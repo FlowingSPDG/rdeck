@@ -8,7 +8,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-var _ output.Analog = (*ledOutput)(nil)
+var _ output.Digital = (*ledOutput)(nil)
 
 type TallyData struct{}
 
@@ -16,7 +16,7 @@ type ledOutput struct {
 	driver *gpio.LedDriver
 }
 
-func NewLEDOutput(driver *gpio.LedDriver) output.Analog {
+func NewLEDOutput(driver *gpio.LedDriver) output.Digital {
 	return &ledOutput{
 		driver: driver,
 	}
