@@ -50,6 +50,9 @@ func (t *vMixTallyConnector) Start(ctx context.Context) error {
 		case d := <-data:
 			log.Println("RECEIVED DATA on vMixTallyConnecor.Start(). data:", d)
 			sd := t.determiner.DetermineByTally(d)
+			if sd == nil {
+				continue
+			}
 			log.Println("Determined tally for:", sd)
 
 			if sd.Program {

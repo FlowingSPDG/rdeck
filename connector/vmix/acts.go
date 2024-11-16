@@ -46,6 +46,9 @@ func (v *vmixActivatorConnector) Start(ctx context.Context) error {
 		case d := <-data:
 			log.Println("RECEIVED DATA on vmixActivatorConnector.Start(). data:", d)
 			sd := v.determiner.DetermineByActs(d)
+			if sd == nil {
+				continue
+			}
 			log.Println("Determined activator for:", sd)
 
 			if sd.Program {

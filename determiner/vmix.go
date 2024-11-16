@@ -1,6 +1,9 @@
 package determiner
 
 import (
+	"strconv"
+	"strings"
+
 	vmixtcp "github.com/FlowingSPDG/vmix-go/tcp"
 )
 
@@ -10,7 +13,8 @@ type ShouldTally struct {
 }
 
 type VMixTallyDeterminer interface {
-	DetermineByTally(*vmixtcp.TallyResponse) ShouldTally
+	// DetermineByTally Determines tally by TallyResponse. Potentially returns nil.
+	DetermineByTally(*vmixtcp.TallyResponse) *ShouldTally
 }
 
 type vmixTallyDeterminerSettings struct {
@@ -29,57 +33,78 @@ func NewvMixTallyDeterminer(target int) VMixTallyDeterminer {
 	}
 }
 
-func (v *vmixTallyDeterminer) DetermineByTally(resp *vmixtcp.TallyResponse) ShouldTally {
+func (v *vmixTallyDeterminer) DetermineByTally(resp *vmixtcp.TallyResponse) *ShouldTally {
 	if len(resp.Tally) < v.s.target-1 {
-		return ShouldTally{}
+		return nil
 	}
 	switch resp.Tally[v.s.target-1] {
 	case vmixtcp.Off:
-		return ShouldTally{}
+		return &ShouldTally{}
 	case vmixtcp.Preview:
-		return ShouldTally{
+		return &ShouldTally{
 			Preview: true,
 			Program: false,
 		}
 	case vmixtcp.Program:
-		return ShouldTally{
+		return &ShouldTally{
 			Preview: false,
 			Program: true,
 		}
 	default:
-		return ShouldTally{}
+		return nil
 	}
 }
 
-type vMixActivatorDeterminer struct {
-	s vMixActivatorDeterminerSettings
+type vMixActivatorInputDeterminer struct {
+	s vMixActivatorInputDeterminerSettings
 }
 
-type vMixActivatorDeterminerSettings struct {
-	// TODO...
-	rawText string
+type vMixActivatorInputDeterminerSettings struct {
+	target string
+	input  int
+	state  int
 }
 
 type VMixActivatorDeterminer interface {
-	DetermineByActs(*vmixtcp.ActsResponse) ShouldTally
+	// DetermineByActs Determines tally by ActsResponse. Potentially returns nil.
+	DetermineByActs(*vmixtcp.ActsResponse) *ShouldTally
 }
 
 // DetermineByActs implements VMixActivatorDeterminer.
-func (v *vMixActivatorDeterminer) DetermineByActs(resp *vmixtcp.ActsResponse) ShouldTally {
-	if v.s.rawText == resp.Response {
-		return ShouldTally{
-			Program: true,
-		}
+func (v *vMixActivatorInputDeterminer) DetermineByActs(resp *vmixtcp.ActsResponse) *ShouldTally {
+	strs := strings.Split(resp.Response, " ")
+	if len(strs) < 3 {
+		return nil
 	}
-	return ShouldTally{
-		Program: false,
+	if strs[0] != v.s.target {
+		return nil
+	}
+
+	input, err := strconv.Atoi(strs[1])
+	if err != nil {
+		return nil
+	}
+	if input != v.s.input {
+		return nil
+	}
+
+	state, err := strconv.Atoi(strs[2])
+	if err != nil {
+		return nil
+	}
+
+	return &ShouldTally{
+		Preview: false,
+		Program: state == v.s.state,
 	}
 }
 
-func NewVMixActivatorDeterminer(rawTarget string) VMixActivatorDeterminer {
-	return &vMixActivatorDeterminer{
-		s: vMixActivatorDeterminerSettings{
-			rawText: rawTarget,
+func NewVMixActivatorDeterminer(target string, input, state int) VMixActivatorDeterminer {
+	return &vMixActivatorInputDeterminer{
+		s: vMixActivatorInputDeterminerSettings{
+			target: target,
+			input:  input,
+			state:  state,
 		},
 	}
 }

@@ -52,7 +52,7 @@ func main() {
 	rd.Add(ctx, vMixTallyConnector)
 
 	// 2: vMix Activator -> LED
-	activatorDeterminer := determiner.NewVMixActivatorDeterminer("InputPlaying 1 1")
+	activatorDeterminer := determiner.NewVMixActivatorDeterminer("InputPlaying", 1, 1)
 	vMixActivatorConnector := vmix.NewVMixActivatorConnector(vMixActivatorInput, ledOutput2, activatorDeterminer)
 	rd.Add(ctx, vMixActivatorConnector)
 
