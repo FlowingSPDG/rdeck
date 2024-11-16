@@ -34,7 +34,7 @@ func NewVMixActivatorConnector(
 }
 
 func (v *vmixActivatorConnector) Start(ctx context.Context) error {
-	log.Println("STARTING vMixTallyConnecor.")
+	log.Println("STARTING vmixActivatorConnector.")
 	log.Println("LISTENING...")
 	data, err := v.in.Listen(ctx)
 	for {
@@ -44,18 +44,18 @@ func (v *vmixActivatorConnector) Start(ctx context.Context) error {
 		case e := <-err:
 			return xerrors.Errorf("Unknown error for e: %w", e)
 		case d := <-data:
-			log.Println("RECEIVED DATA on vMixTallyConnecor.Start(). data:", d)
+			log.Println("RECEIVED DATA on vmixActivatorConnector.Start(). data:", d)
 			sd := v.determiner.DetermineByActs(d)
-			log.Println("Determined tally for:", sd)
+			log.Println("Determined activator for:", sd)
 
 			if sd.Program {
 				if err := v.out.On(); err != nil {
-					return xerrors.Errorf("failed to turn on tally light: %w", err)
+					return xerrors.Errorf("failed to turn on activator light: %w", err)
 				}
 				continue
 			}
 			if err := v.out.Off(); err != nil {
-				return xerrors.Errorf("failed to turn on tally light: %w", err)
+				return xerrors.Errorf("failed to turn on activator light: %w", err)
 			}
 			continue
 		}

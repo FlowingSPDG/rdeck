@@ -76,8 +76,10 @@ func (v *vMixActivatorDeterminer) DetermineByActs(resp *vmixtcp.ActsResponse) Sh
 	}
 }
 
-func NewVMixActivatorDeterminer(target int) VMixActivatorDeterminer {
+func NewVMixActivatorDeterminer(rawTarget string) VMixActivatorDeterminer {
 	return &vMixActivatorDeterminer{
-		s: vMixActivatorDeterminerSettings{},
+		s: vMixActivatorDeterminerSettings{
+			rawText: rawTarget,
+		},
 	}
 }

@@ -15,6 +15,7 @@ import (
 type VMixConnection interface {
 	Start(ctx context.Context) error
 	ToTallyInput() input.Input[*vmixtcp.TallyResponse]
+	ToActivatorInput() input.Input[*vmixtcp.ActsResponse]
 	ToOutput() output.VMixOutput
 }
 
@@ -43,6 +44,10 @@ func (v *vMixConnection) Start(ctx context.Context) error {
 // ToInput implements VMixConnection.
 func (v *vMixConnection) ToTallyInput() input.Input[*vmixtcp.TallyResponse] {
 	return vmix.NewvMixTallyInput(v.v)
+}
+
+func (v *vMixConnection) ToActivatorInput() input.Input[*vmixtcp.ActsResponse] {
+	return vmix.NewvMixActivatorInput(v.v)
 }
 
 // ToOutput implements VMixConnection.
