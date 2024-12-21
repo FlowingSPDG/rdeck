@@ -30,7 +30,7 @@ func main() {
 	ledDriver := gpio.NewLedDriver(raspiAdapter, "7")
 	ledOutput := led.NewLEDOutput(ledDriver)
 	buttonDriver := gpio.NewButtonDriver(raspiAdapter, "40")
-	buttonInput := button.NewButtonInput(buttonDriver)
+	buttonInput := button.NewButtonInput(buttonDriver, true)
 
 	// determiner/logic
 

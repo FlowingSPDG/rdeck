@@ -51,9 +51,8 @@ func (v *vmixTallyDeterminer) DetermineByTally(resp *vmixtcp.TallyResponse) *Sho
 			Preview: false,
 			Program: true,
 		}
-	default:
-		return nil
 	}
+	return nil
 }
 
 type vMixActivatorInputDeterminer struct {

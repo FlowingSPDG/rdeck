@@ -29,7 +29,7 @@ func main() {
 
 	// vMix related
 	vMixConnectionPool := connection.NewvMixConnectionPool()
-	vMixConnection := vMixConnectionPool.AddNew("192.168.1.10")
+	vMixConnection := vMixConnectionPool.AddNew("192.168.1.6")
 
 	// raspi related
 	raspiAdapter := raspi.NewAdaptor()
@@ -43,10 +43,10 @@ func main() {
 	ledOutput3 := led.NewLEDOutput(ledDriver3)
 
 	// buttons
-	buttonDriver1 := gpio.NewButtonDriver(raspiAdapter, "37")
-	buttonInput1 := button.NewButtonInput(buttonDriver1)
-	buttonDriver2 := gpio.NewButtonDriver(raspiAdapter, "8")
-	buttonInput2 := button.NewButtonInput(buttonDriver2)
+	buttonDriver1 := gpio.NewButtonDriver(raspiAdapter, "37") // GPIO:26
+	buttonInput1 := button.NewButtonInput(buttonDriver1, true)
+	buttonDriver2 := gpio.NewButtonDriver(raspiAdapter, "8") // GPIO:14
+	buttonInput2 := button.NewButtonInput(buttonDriver2, true)
 
 	// determiner/logic
 
