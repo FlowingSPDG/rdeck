@@ -10,8 +10,6 @@ import (
 
 var _ output.Digital = (*ledOutput)(nil)
 
-type TallyData struct{}
-
 type ledOutput struct {
 	driver *gpio.LedDriver
 }

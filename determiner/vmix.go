@@ -1,6 +1,7 @@
 package determiner
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -55,14 +56,14 @@ func (v *vmixTallyDeterminer) DetermineByTally(resp *vmixtcp.TallyResponse) *Sho
 	return nil
 }
 
-type vMixActivatorInputDeterminer struct {
-	s vMixActivatorInputDeterminerSettings
+type vMixActivatorInputDeterminer[T comparable] struct {
+	s vMixActivatorInputDeterminerSettings[T]
 }
 
-type vMixActivatorInputDeterminerSettings struct {
+type vMixActivatorInputDeterminerSettings[T comparable] struct {
 	target string
 	input  int
-	state  int
+	state  T
 }
 
 type VMixActivatorDeterminer interface {
@@ -71,7 +72,7 @@ type VMixActivatorDeterminer interface {
 }
 
 // DetermineByActs implements VMixActivatorDeterminer.
-func (v *vMixActivatorInputDeterminer) DetermineByActs(resp *vmixtcp.ActsResponse) *ShouldTally {
+func (v *vMixActivatorInputDeterminer[T]) DetermineByActs(resp *vmixtcp.ActsResponse) *ShouldTally {
 	log.Println("DetermineByActs:", resp)
 
 	strs := strings.Split(resp.Response, " ")
@@ -90,22 +91,23 @@ func (v *vMixActivatorInputDeterminer) DetermineByActs(resp *vmixtcp.ActsRespons
 		return nil
 	}
 
-	state, err := strconv.Atoi(strs[2])
-	if err != nil {
+	state := new(T)
+
+	if _, err := fmt.Sscanf(strs[2], "%v", state); err != nil {
 		return nil
 	}
 
 	st := &ShouldTally{
 		Preview: false,
-		Program: state == v.s.state,
+		Program: *state == v.s.state,
 	}
 	log.Println("DetermineByActs result:", st)
 	return st
 }
 
-func NewVMixActivatorDeterminer(target string, input, state int) VMixActivatorDeterminer {
-	return &vMixActivatorInputDeterminer{
-		s: vMixActivatorInputDeterminerSettings{
+func NewVMixActivatorDeterminer[T comparable](target string, input int, state T) VMixActivatorDeterminer {
+	return &vMixActivatorInputDeterminer[T]{
+		s: vMixActivatorInputDeterminerSettings[T]{
 			target: target,
 			input:  input,
 			state:  state,
